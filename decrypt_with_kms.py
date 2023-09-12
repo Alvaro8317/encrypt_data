@@ -1,11 +1,21 @@
-import json
+import logging
 import boto3
 client = boto3.client('kms')
-with open('crypted_info.txt', 'rb') as binary_file:
-    crypted_info = binary_file.read()
-# print(crypted_info)
-response = client.decrypt(CiphertextBlob=crypted_info,
-                          KeyId='arn:aws:kms:us-east-1:648254270796:key/7c020ad4-1831-4ace-b0d6-baf7f490e147',
-                          EncryptionAlgorithm= 'RSAES_OAEP_SHA_256',
-                          DryRun=True)
-print(response)
+
+def decrypt_data_key(data_key_encrypted):
+    """Decrypt an encrypted data key
+
+    :param data_key_encrypted: Encrypted ciphertext data key.
+    :return Plaintext base64-encoded binary data key as binary string
+    :return None if error
+    """
+
+    # Decrypt the data key
+    try:
+        response = client.decrypt(CiphertextBlob=data_key_encrypted)
+    except ClientError as e:
+        logging.error(e)
+        return None
+
+    # Return plaintext base64-encoded binary data key
+    return base64.b64encode((response['Plaintext']))

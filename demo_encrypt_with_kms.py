@@ -2,8 +2,10 @@ import boto3
 import logging
 from fernet import Fernet
 from Crypto.PublicKey import RSA
+from time import sleep
+from demo_decrypt_with_kms import decrypt_with_kms
 client = boto3.client('kms', region_name='us-east-1')
-key_arn = 'arn:aws:kms:us-east-1:648254270796:key/7c020ad4-1831-4ace-b0d6-baf7f490e147'
+arn_key = 'arn:aws:kms:us-east-1:648254270796:key/7c020ad4-1831-4ace-b0d6-baf7f490e147'
 
 
 def encrypt_file(filename, cmk_id):
@@ -67,4 +69,11 @@ def encrypt_file(filename, cmk_id):
     return True
 
 
-encrypt_file('requirements.txt', key_arn)
+# encrypt_file('requirements.txt', arn_key)
+def encrypt_text_with_boto (text_in_bytes: bytes):
+    print(text_in_bytes)
+    response = client.encrypt(KeyId=arn_key, Plaintext=text_in_bytes,EncryptionAlgorithm='RSAES_OAEP_SHA_256')
+    return response['CiphertextBlob']
+cipher_text = encrypt_text_with_boto(b'Hello there!')
+print(cipher_text)
+decrypt_with_kms(cipher_text, arn_key)
