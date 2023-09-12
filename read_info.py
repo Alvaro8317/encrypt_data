@@ -6,4 +6,4 @@ def read_data_from_file(filename: str):
 
 if __name__ == '__main__':
   response = read_data_from_file('raw_data.txt')
-  print(type(response))
+  print(response)

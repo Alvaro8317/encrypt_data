@@ -1,21 +1,8 @@
-import logging
 import boto3
-client = boto3.client('kms')
+client = boto3.client('kms', region_name='us-east-1')
 
-def decrypt_data_key(data_key_encrypted):
-    """Decrypt an encrypted data key
 
-    :param data_key_encrypted: Encrypted ciphertext data key.
-    :return Plaintext base64-encoded binary data key as binary string
-    :return None if error
-    """
-
-    # Decrypt the data key
-    try:
-        response = client.decrypt(CiphertextBlob=data_key_encrypted)
-    except ClientError as e:
-        logging.error(e)
-        return None
-
-    # Return plaintext base64-encoded binary data key
-    return base64.b64encode((response['Plaintext']))
+def decrypt_with_kms(cipher_text: bytes, key_id):
+    response = client.decrypt(CiphertextBlob=cipher_text,
+                              KeyId=key_id, EncryptionAlgorithm='RSAES_OAEP_SHA_256')
+    print(response['Plaintext'])
